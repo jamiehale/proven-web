@@ -1,0 +1,35 @@
+{
+    "ipfsHash": "abc",
+    "depositions": [{
+        "id": "abc",
+        "deponent": "abc"
+    }],
+    "filename": "Louie.jpeg",
+    "cameraModel": "abc",
+    "imageWidth": "abc",
+    "imageHeight": "abc",
+    "mimetype": "abc",
+    "guid": "abc",
+    "blockchains": {
+        "ethereum": {
+            "blockHash": "abc",
+            "blockNumber": "abc"
+        },
+        "bitcoin": {
+            "blockHash": "abc",
+            "blockNumber": "abc"
+        }
+    },
+    "fileHashes": {
+        "md5": "abc"
+    },
+    "createdAt": "abc",
+    "previousFileHashes": [],
+    "previousIpfsHash": "",
+    "extracts": [{
+        "source": "exiftool",
+        "extractDateTime": "abc",
+        "data": {
+        }
+    }]
+}

@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+  each deposition in depositions
+    h2
+      a(href="/deposition/" + deposition._id)= deposition._id

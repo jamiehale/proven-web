@@ -1,35 +1,77 @@
 {
-    "ipfsHash": "abc",
+    "ipfsHash": "QmVh2pPHRSVwEjRAyNAcrX9qiyXZEJHvXgSnDiv2kyLUcb",
     "depositions": [{
         "id": "abc",
-        "deponent": "abc"
+        "deponent": "abc",
+        "publishedAt": "2016-12-01 18:01:33"
     }],
     "filename": "Louie.jpeg",
-    "cameraModel": "abc",
-    "imageWidth": "abc",
-    "imageHeight": "abc",
-    "mimetype": "abc",
-    "guid": "abc",
+    "cameraModel": "HD Pro Webcam C920",
+    "imageWidth": "1920",
+    "imageHeight": "1080",
+    "mimetype": "image/jpeg",
+    "guid": "3a4334be-e41f-49c8-8518-340f74277606",
     "blockchains": {
         "ethereum": {
-            "blockHash": "abc",
-            "blockNumber": "abc"
+            "blockHash": "0xe7f9a8373326ecb3240b0c6743c4792da4a17207cf0da4056c3fad94766fc62f",
+            "blockNumber": "2777500"
         },
         "bitcoin": {
-            "blockHash": "abc",
-            "blockNumber": "abc"
+            "blockHash": "0000000000000000036d5a7173fa75185a5f7b60195d3bac03ecef3e971c1637",
+            "blockNumber": "442677"
         }
     },
     "fileHashes": {
-        "md5": "abc"
+        "md5": "84C5B7886D243D0ADBB3C707B629F3BF"
     },
-    "createdAt": "abc",
+    "createdAt": "2016-12-01 17:59:16",
+    "indexedAt": "2016-12-01 18:10:12",
     "previousFileHashes": [],
     "previousIpfsHash": "",
     "extracts": [{
         "source": "exiftool",
-        "extractDateTime": "abc",
+        "sourceVersion": "10.10",
+        "extractedAt": "2016-12-01 18:10:12",
         "data": {
+            "SourceFile": "Louie.jpeg",
+            "ExifToolVersion": 10.10,
+            "FileName": "Louie.jpeg",
+            "Directory": ".",
+            "FileSize": "696 kB",
+            "FileModifyDate": "2017:01:27 11:21:44-05:00",
+            "FileAccessDate": "2017:02:11 17:11:28-05:00",
+            "FileInodeChangeDate": "2017:01:27 11:21:44-05:00",
+            "FilePermissions": "rw-rw-r--",
+            "FileType": "JPEG",
+            "FileTypeExtension": "jpg",
+            "MIMEType": "image/jpeg",
+            "ExifByteOrder": "Little-endian (Intel, II)",
+            "Model": "HD Pro Webcam C920",
+            "Software": "Cheese 3.18.1",
+            "ModifyDate": "2016:12:01 17:59:16",
+            "ExifVersion": "0230",
+            "DateTimeOriginal": "2016:12:01 17:59:16",
+            "FlashpixVersion": "0100",
+            "XMPToolkit": "Adobe XMP Core Test.SNAPSHOT",
+            "BitcoinBlockNumber": 442677,
+            "BitcoinBlockHash": "0000000000000000036d5a7173fa75185a5f7b60195d3bac03ecef3e971c1637",
+            "EthereumBlockNumber": 2777500,
+            "EthereumBlockHash": "0xe7f9a8373326ecb3240b0c6743c4792da4a17207cf0da4056c3fad94766fc62f",
+            "PreviousIPFSHash": "",
+            "PreviousFileHashes": "",
+            "Guid": "3a4334be-e41f-49c8-8518-340f74277606",
+            "DCTEncodeVersion": 100,
+            "APP14Flags0": "(none)",
+            "APP14Flags1": "(none)",
+            "ColorTransform": "Unknown (RGB or CMYK)",
+            "ImageWidth": 1920,
+            "ImageHeight": 1080,
+            "EncodingProcess": "Baseline DCT, Huffman coding",
+            "BitsPerSample": 8,
+            "ColorComponents": 3,
+            "YCbCrSubSampling": "YCbCr4:4:4 (1 1)",
+            "ImageSize": "1920x1080",
+            "Megapixels": 2.1
         }
     }]
 }

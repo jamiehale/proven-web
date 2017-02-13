@@ -1,5 +1,96 @@
 extends layout
 
 block content
-  h1= deposition._id
-  p Welcome to #{title}
+  h1 Deposition
+  .container
+    .row
+      .col
+        a(href="/ipfs/" + deposition.ipfsHash + "/content/" + deposition.filename)
+          img(src="/ipfs/" + deposition.ipfsHash + "/content/" + deposition.filename width="100%")
+    .row
+      .col
+        h3 Deposition
+        if deposition.depositions.length == 1
+          - let d = deposition.depositions[0]
+          p
+            #{d.publishedAt} #{d.id} &nbsp;
+            span by &nbsp;
+              a(href="/depositions?deponent=" + d.deponent) #{d.deponent}
+        else
+          ol
+            each d in deposition.depositions
+              li
+                #{d.publishedAt} #{d.id} &nbsp;
+                span by &nbsp;
+                  a(href="/depositions?deponent=" + d.deponent) #{d.deponent}
+        h3 Payload
+        ul
+          li
+            span GUID: &nbsp;
+            span= deposition.guid
+          li
+            span Created At: &nbsp;
+            span= deposition.createdAt
+          li
+            span Indexed At: &nbsp;
+            span= deposition.indexedAt
+          if deposition.updatedAt
+            li
+              span Updated At: &nbsp;
+              span= deposition.updatedAt
+          li
+            span IPFS Hash (enclosure): &nbsp;
+            span: a(href="http://ipfs.io/ipfs/" + deposition.ipfsHash) #{deposition.ipfsHash}
+          li
+            span File Hashes:
+            ul
+              each hash, algorithm in deposition.fileHashes
+                li
+                  span #{algorithm}: &nbsp;
+                  span= hash
+          li
+            span Blockchain References:
+            ul
+              if deposition.blockchains.ethereum
+                - let ref = deposition.blockchains.ethereum
+                li
+                  span Ethereum: &nbsp;
+                  span
+                    a(href="https://etherscan.io/block/" + ref.blockHash) #{ref.blockHash} (block ##{ref.blockNumber})
+              if deposition.blockchains.bitcoin
+                - let ref = deposition.blockchains.bitcoin
+                li
+                  span Bitcoin: &nbsp;
+                  span
+                    a(href="https://blockchain.info/block/" + ref.blockHash) #{ref.blockHash} (block ##{ref.blockNumber})
+          li
+            span Camera Model: &nbsp;
+            span= deposition.cameraModel
+          li
+            span Image Size: &nbsp;
+            span= deposition.imageWidth + "x" + deposition.imageHeight
+          li
+            span Mime Type: &nbsp;
+            span= deposition.mimetype
+          if deposition.extracts.length > 0
+            li
+              span Extracts: &nbsp;
+              ul
+                each extract in deposition.extracts
+                  li
+                    span= extract.source
+                    ul
+                      if extract.sourceVersion
+                        li
+                          span Tool Version: &nbsp;
+                          span= extract.sourceVersion
+                      li
+                        span Extracted At: &nbsp;
+                        span= extract.extractedAt
+                      li
+                        span Raw Data: &nbsp;
+                        ul
+                          each value, key in extract.data
+                            li
+                              span #{key}: &nbsp;
+                              span= value

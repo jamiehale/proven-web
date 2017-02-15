@@ -8,6 +8,7 @@ const url = require('url');
 
 var appRoutes = require('./app_server/routes/index');
 var apiRoutes = require('./app_api/routes/index');
+var provenRoutes = require('./app_proven/routes/index');
 
 var app = express();
 
@@ -41,6 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', appRoutes);
 app.use('/api', apiRoutes);
+app.use('/proven', provenRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

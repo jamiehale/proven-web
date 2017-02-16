@@ -1,13 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const bs58 = require('bs58');
-const Web3 = require('web3');
-const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
 const provenAbi = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../res/proven.abi'), 'utf8'));
 const provenAddress = '0xc34bf56a27ceab53e795eba55b9f1503eea6a771';
-const Proven = web3.eth.contract(provenAbi);
-const proven = Proven.at(provenAddress);
 const fromAddress = '0x00F28F9B9692E00feAB5A53469FC3e2972574619';
 
 function ipfsHashToHexString(ipfsHash) {
@@ -16,6 +12,10 @@ function ipfsHashToHexString(ipfsHash) {
 }
 
 function queueTransaction(ipfsHash) {
+    const Web3 = require('web3');
+    const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+    const Proven = web3.eth.contract(provenAbi);
+    const proven = Proven.at(provenAddress);
     proven.publishDeposition.sendTransaction(ipfsHash, {from: fromAddress}, function(error, txHash) {
         if (error) {
             console.log(error);

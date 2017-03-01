@@ -37,7 +37,7 @@ function queueTransaction(ipfsHash) {
     });
 }
 
-module.exports.postDepositions = function(req, res) {
+module.exports.postDeposition = function(req, res) {
     if (!req.body.ipfsHash) {
         res.status(400);
         res.json({"status": "No ipfsHash"});

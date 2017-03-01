@@ -10,19 +10,20 @@ block content
     .row
       .col
         h3 Deposition
-        if deposition.depositions.length == 1
-          - let d = deposition.depositions[0]
-          p
-            #{d.publishedAt} #{d.id} &nbsp;
-            span by &nbsp;
-              a(href="/depositions?deponent=" + d.deponent) #{d.deponent}
-        else
-          ol
-            each d in deposition.depositions
-              li
-                #{d.publishedAt} #{d.id} &nbsp;
-                span by &nbsp;
-                  a(href="/depositions?deponent=" + d.deponent) #{d.deponent}
+        ol
+          each d in deposition.depositions
+            li
+              span= d.blockTimestamp
+              ul
+                li
+                  span Block: &nbsp;
+                  span #{d.blockHash} (#{d.blockNumber})
+                li
+                  span Transaction: &nbsp;
+                  span= d.transactionHash
+                li
+                  span Deponent: &nbsp;
+                  span= d.deponent
         h3 Payload
         ul
           li

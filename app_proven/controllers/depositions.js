@@ -1,51 +1,83 @@
-const fs = require('fs');
-const path = require('path');
-const bs58 = require('bs58');
+const MongoClient = require('mongodb').MongoClient;
 
-const provenAbi = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../res/proven.abi'), 'utf8'));
-const provenAddress = '0xc34bf56a27ceab53e795eba55b9f1503eea6a771';
-const fromAddress = '0x00F28F9B9692E00feAB5A53469FC3e2972574619';
-
-function ipfsHashToHexString(ipfsHash) {
-    let ipfsHashAsHex = new Buffer(bs58.decode(ipfsHash)).toString('hex');
-    return '0x' + ipfsHashAsHex;
+function jsonOk(response) {
+    response.status(200);
+    response.json({"status": "OK"});
 }
 
-function queueTransaction(ipfsHash) {
-    const Web3 = require('web3');
-    const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-    const Proven = web3.eth.contract(provenAbi);
-    const proven = Proven.at(provenAddress);
-    proven.publishDeposition.sendTransaction(ipfsHash, {from: fromAddress}, function(error, txHash) {
-        if (error) {
-            console.log(error);
-        } else {
-            const filter = web3.eth.filter('latest');
-            filter.watch(function(error, blockHash) {
-                if (error) {
-                    filter.stopWatching();
-                    console.log(error);
-                } else {
-                    const tx = web3.eth.getTransaction(txHash);
-                    if (tx.blockHash) {
-                        console.log('Transaction mined: ' + tx.blockHash);
-                        filter.stopWatching();
-                    }
-                }
-            });
+function jsonStatus(response, status, message) {
+    response.status(status);
+    response.json({"status": message});
+}
+
+function remoteAddressFromRequest(request) {
+    return request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+}
+
+function requestToDeposition(request) {
+    return {
+        ipfsHash: request.body.ipfsHash,
+        remoteAddress: remoteAddressFromRequest(request)
+    }
+}
+
+function validateRequest(request) {
+    return new Promise(function(resolve, reject) {
+        if (!request.body.ipfsHash) {
+            reject(new Error('No ipfsHash'));
         }
+        resolve();
+    });
+}
+
+function connectToDatabase() {
+    return new Promise(function(resolve, reject) {
+        MongoClient.connect('mongodb://localhost:27017/proven', function(error, db) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(db);
+            }
+        });
+    });
+}
+
+function insertDeposition(db, deposition) {
+    return new Promise((resolve, reject) => {
+        const collection = db.collection('depositions');
+        collection.insertOne(deposition, (error, result) => {
+            if (error) {
+                reject(error);
+            } else {
+                if (result.insertedCount != 1) {
+                    reject(new Error('Unexpected record count on insert'));
+                } else {
+                    resolve();
+                }
+            }
+        });
+    });
+}
+
+function storeDeposition(deposition) {
+    return new Promise(function(resolve, reject) {
+        connectToDatabase().then((db) => {
+            return insertDeposition(db, deposition);
+        }).then(() => {
+            resolve();
+        }).catch((error) => {
+            reject(error);
+        });
     });
 }
 
 module.exports.postDeposition = function(req, res) {
-    if (!req.body.ipfsHash) {
-        res.status(400);
-        res.json({"status": "No ipfsHash"});
-    } else {
-        queueTransaction(ipfsHashToHexString(req.body.ipfsHash));
-        console.log('Transaction sent: ' + req.body.ipfsHash);
-        res.status(200);
-        res.json({"status": "OK"});
-    }
+    validateRequest(req).then(() => {
+        return storeDeposition(requestToDeposition(req));
+    }).then(() => {
+        jsonOk(res);
+    }).catch((error) => {
+        jsonStatus(res, 400, error.toString());
+    });
 };
 

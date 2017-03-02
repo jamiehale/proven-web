@@ -1,45 +1,79 @@
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 
-module.exports.getDeposition = function(req, res, next) {
-    MongoClient.connect('mongodb://localhost:27017/proven', function(error, db) {
-        if (error) {
-            res.status(400);
-            res.json({"status": error});
-        } else {
-            const collection = db.collection('depositions');
-            collection.find({"_id": new ObjectId(req.params.id)}).toArray(function(error, docs) {
-                if (error) {
-                    res.status(400);
-                    res.json({"status": error});
+function jsonOk(response) {
+    response.status(200);
+    response.json({"status": "OK"});
+}
+
+function jsonStatus(response, status, message) {
+    response.status(status);
+    response.json({"status": message});
+}
+
+function connectToDatabase() {
+    return new Promise(function(resolve, reject) {
+        MongoClient.connect('mongodb://localhost:27017/proven', function(error, db) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(db);
+            }
+        });
+    });
+}
+
+function findDeposition(db, id) {
+    return new Promise((resolve, reject) => {
+        const collection = db.collection('depositions');
+        collection.find({"_id": new ObjectId(id)}).toArray(function(error, docs) {
+            if (error) {
+                reject(error);
+            } else {
+                db.close();
+                if (docs.length != 0) {
+                    reject(new Error('No document found'));
                 } else {
-                    res.status(200);
-                    res.json(docs);
+                    resolve(docs[0]);
                 }
-            });
-        }
-        db.close();
+            }
+        });
+    });
+}
+
+function findAllDepositions(db) {
+    return new Promise((resolve, reject) => {
+        const collection = db.collection('depositions');
+        collection.find().toArray(function(error, docs) {
+            if (error) {
+                reject(error);
+            } else {
+                db.close();
+                resolve(docs);
+            }
+        });
+    });
+}
+
+module.exports.getDeposition = function(req, res, next) {
+    connectToDatabase().then((db) => {
+        return findDeposition(db, req.params.id);
+    }).then((deposition) => {
+        res.status(200);
+        res.json(deposition);
+    }).catch((error) => {
+        jsonStatus(res, 400, error.toString());
     });
 };
 
 module.exports.getDepositions = function(req, res, next) {
-    MongoClient.connect('mongodb://localhost:27017/proven', function(error, db) {
-        if (error) {
-            res.status(400);
-            res.json({"status": error});
-        } else {
-            const collection = db.collection('depositions');
-            collection.find().toArray(function(error, docs) {
-                if (error) {
-                    res.status(400);
-                    res.json({"status": error});
-                } else {
-                    res.status(200);
-                    res.json(docs);
-                }
-            });
-        }
-        db.close();
+    connectToDatabase().then((db) => {
+        return findAllDepositions(db);
+    }).then((depositions) => {
+        res.status(200);
+        res.json(depositions);
+    }).catch((error) => {
+        jsonStatus(res, 400, error.toString());
     });
 };
 

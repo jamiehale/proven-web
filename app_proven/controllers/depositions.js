@@ -17,7 +17,8 @@ function remoteAddressFromRequest(request) {
 function requestToDeposition(request) {
     return {
         ipfsHash: request.body.ipfsHash,
-        remoteAddress: remoteAddressFromRequest(request)
+        remoteAddress: remoteAddressFromRequest(request),
+        submittedAt: Date().toString()
     }
 }
 

@@ -1,0 +1,21 @@
+#! /usr/bin/env node
+
+const MongoClient = require('mongodb').MongoClient;
+
+MongoClient.connect('mongodb://localhost:27017/proven', function(error, db) {
+    if (error) {
+        console.log(error);
+        process.exit(1);
+    } else {
+        db.collection('depositions').remove({}, function(error, result) {
+            if (error) {
+                console.log(error);
+                process.exit(1);
+            } else {
+                console.log('Depositions queue cleared');
+                process.exit(1);
+            }
+        });
+    }
+    db.close();
+});

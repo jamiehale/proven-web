@@ -1,0 +1,14 @@
+{
+    "development": {
+        "port": 3000,
+        "db": {
+            "endpoint": "mongodb://localhost:27017/proven"
+        }
+    },
+    "production": {
+        "port": 3000,
+        "db": {
+            "endpoint": "mongodb://localhost:27017/proven"
+        }
+    }
+}

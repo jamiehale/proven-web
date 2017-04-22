@@ -1,4 +1,7 @@
-const MongoClient = require('mongodb').MongoClient;
+const mongoose = require('mongoose');
+const DepositionRequest = mongoose.model('DepositionRequest');
+const AssetHash = mongoose.model('AssetHash');
+const depositionQueue = require('../../lib/deposition_queue.js');
 
 function jsonOk(response) {
     response.status(200);
@@ -15,11 +18,11 @@ function remoteAddressFromRequest(request) {
 }
 
 function requestToDeposition(request) {
-    return {
+    return new DepositionRequest({
         ipfsHash: request.body.ipfsHash,
         remoteAddress: remoteAddressFromRequest(request),
-        submittedAt: Date().toString()
-    }
+        submittedAt: Date()
+    });
 }
 
 function validateRequest(request) {
@@ -31,40 +34,9 @@ function validateRequest(request) {
     });
 }
 
-function connectToDatabase() {
+function queueDeposition(deposition) {
     return new Promise(function(resolve, reject) {
-        MongoClient.connect('mongodb://localhost:27017/proven', function(error, db) {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(db);
-            }
-        });
-    });
-}
-
-function insertDeposition(db, deposition) {
-    return new Promise((resolve, reject) => {
-        const collection = db.collection('depositions');
-        collection.insertOne(deposition, (error, result) => {
-            if (error) {
-                reject(error);
-            } else {
-                if (result.insertedCount != 1) {
-                    reject(new Error('Unexpected record count on insert'));
-                } else {
-                    resolve();
-                }
-            }
-        });
-    });
-}
-
-function storeDeposition(deposition) {
-    return new Promise(function(resolve, reject) {
-        connectToDatabase().then((db) => {
-            return insertDeposition(db, deposition);
-        }).then(() => {
+        depositionQueue.push(deposition).then(() => {
             resolve();
         }).catch((error) => {
             reject(error);
@@ -72,9 +44,40 @@ function storeDeposition(deposition) {
     });
 }
 
+function storeAssetHash(ipfsHash) {
+    return new Promise((resolve, reject) => {
+        AssetHash.find({ipfsHash: ipfsHash}, (error, assetHashes) => {
+            if (error) {
+                reject(error);
+            } else {
+                if (assetHashes.length === 0) {
+                    let assetHash = new AssetHash({ipfsHash: ipfsHash, hashType: "enclosure"});
+                    assetHash.save((error) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve();
+                        }
+                    });
+                } else {
+                    let assetHash = assetHashes[0];
+                    console.log(`Duplicate asset hash submitted (${ipfsHash})`);
+                    if (assetHash.hashType !== "enclosure") {
+                        console.log(`Duplicate asset hash type mismatch (new: enclosure, old: ${assetHash.hashType})`);
+                    }
+                    resolve();
+                }
+            }
+        });
+    });
+}
+
 module.exports.postDeposition = function(req, res) {
     validateRequest(req).then(() => {
-        return storeDeposition(requestToDeposition(req));
+        return Promise.all([
+            queueDeposition(requestToDeposition(req)),
+            storeAssetHash(req.body.ipfsHash)
+        ]);
     }).then(() => {
         jsonOk(res);
     }).catch((error) => {

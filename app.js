@@ -1,3 +1,4 @@
+const fs = require('fs');
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -5,6 +6,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 const url = require('url');
+
+const configuration = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'config/config.json')))[process.env.NODE_ENV];
+const port = configuration.port || 3000;
+
+const mongoose = require('mongoose');
+require('proven-models');
 
 var appRoutes = require('./app_server/routes/index');
 var apiRoutes = require('./app_api/routes/index');
@@ -16,7 +23,6 @@ var app = express();
 app.set('views', path.join(__dirname, '/app_server/views'));
 app.set('view engine', 'jade');
 
-// uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use('/ipfs', function(req, res, next) {
     if (req.method !== "GET") {
@@ -63,3 +69,21 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
+connect()
+    .on('error', console.log)
+    .on('disconnected', connect)
+    .once('open', listen);
+
+function listen() {
+    if (app.get('env') == 'test') {
+        return;
+    }
+    app.listen(port);
+    console.log('Express app started on port ' + port);
+}
+
+function connect() {
+    let options = { server: { socketOptions: { keepAlive: 1 } } };
+    return mongoose.connect(configuration.db.endpoint, options).connection;
+}

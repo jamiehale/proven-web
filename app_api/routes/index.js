@@ -1,8 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const controller = require('../controllers/depositions');
+const router = require('express').Router();
+const depositionsController = require('../controllers/depositionRequests');
+const assetHashesController = require('../controllers/assetHashes');
 
-router.get('/deposition/:id', controller.getDeposition);
-router.get('/depositions', controller.getDepositions);
+router.get('/deposition/:id', depositionsController.getDeposition);
+router.get('/depositions', depositionsController.getDepositions);
+router.get('/assetHashes', assetHashesController.getAssetHashes);
 
 module.exports = router;

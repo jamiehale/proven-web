@@ -1,10 +1,10 @@
 const fs = require('fs');
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 const url = require('url');
 
 const configuration = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'config/config.json')))[process.env.NODE_ENV];
@@ -13,11 +13,11 @@ const port = configuration.port || 3000;
 const mongoose = require('mongoose');
 require('proven-models');
 
-var appRoutes = require('./app_server/routes/index');
-var apiRoutes = require('./app_api/routes/index');
-var provenRoutes = require('./app_proven/routes/index');
+const appRoutes = require('./app_server/routes/index');
+const apiRoutes = require('./app_api/routes/index');
+const provenRoutes = require('./app_proven/routes/index');
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, '/app_server/views'));

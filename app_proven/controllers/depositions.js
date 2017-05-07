@@ -2,22 +2,13 @@ const mongoose = require('mongoose');
 const DepositionRequest = mongoose.model('DepositionRequest');
 const AssetHash = mongoose.model('AssetHash');
 const depositionQueue = require('../../lib/deposition_queue.js');
+const { jsonOk, jsonStatus } = require('../../lib/json');
 
-function jsonOk(response) {
-    response.status(200);
-    response.json({"status": "OK"});
-}
-
-function jsonStatus(response, status, message) {
-    response.status(status);
-    response.json({"status": message});
-}
-
-function remoteAddressFromRequest(request) {
+const remoteAddressFromRequest = request => {
     return request.headers['x-forwarded-for'] || request.connection.remoteAddress;
-}
+};
 
-function requestToDeposition(request) {
+const requestToDeposition = request => {
     return new DepositionRequest({
         ipfsHash: request.body.ipfsHash,
         remoteAddress: remoteAddressFromRequest(request),
@@ -25,26 +16,24 @@ function requestToDeposition(request) {
     });
 }
 
-function validateRequest(request) {
-    return new Promise(function(resolve, reject) {
+const validateRequest = request => {
+    return new Promise((resolve, reject) => {
         if (!request.body.ipfsHash) {
             reject(new Error('No ipfsHash'));
         }
         resolve();
     });
-}
+};
 
-function queueDeposition(deposition) {
-    return new Promise(function(resolve, reject) {
-        depositionQueue.push(deposition).then(() => {
-            resolve();
-        }).catch((error) => {
-            reject(error);
-        });
+const queueDeposition = deposition => {
+    return new Promise((resolve, reject) => {
+        depositionQueue.push(deposition)
+            .then(() => resolve())
+            .catch(error => reject(error));
     });
-}
+};
 
-function storeAssetHash(ipfsHash) {
+const storeAssetHash = ipfsHash => {
     return new Promise((resolve, reject) => {
         AssetHash.find({ipfsHash: ipfsHash}, (error, assetHashes) => {
             if (error) {
@@ -70,18 +59,14 @@ function storeAssetHash(ipfsHash) {
             }
         });
     });
-}
-
-module.exports.postDeposition = function(req, res) {
-    validateRequest(req).then(() => {
-        return Promise.all([
-            queueDeposition(requestToDeposition(req)),
-            storeAssetHash(req.body.ipfsHash)
-        ]);
-    }).then(() => {
-        jsonOk(res);
-    }).catch((error) => {
-        jsonStatus(res, 400, error.toString());
-    });
 };
 
+module.exports.postDeposition = function(req, res) {
+    validateRequest(req)
+        .then(() => Promise.all([
+            queueDeposition(requestToDeposition(req)),
+            storeAssetHash(req.body.ipfsHash)
+        ]))
+        .then(() => { jsonOk(res); })
+        .catch(error => { jsonStatus(res, 400, error.toString()); });
+};
